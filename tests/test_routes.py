@@ -10,17 +10,19 @@ def test_signup(client):
     assert response.status_code == 200
     assert response.json()["email"] == "unit@test.com"
 
-# 2. Test Login (Basic Integration)
+# 2. Test Login (Updated for JWT)
 def test_login(client):
     # Ensure user exists first
-    client.post("/users/signup", json={"username":"loginuser","email":"login@test.com","password":"password123"})
+    client.post("/users/signup", json={"username":"jwtuser","email":"jwt@test.com","password":"password123"})
     
     response = client.post("/users/login", json={
-        "email": "login@test.com",
+        "email": "jwt@test.com",
         "password": "password123"
     })
     assert response.status_code == 200
-    assert "token" in response.text or "message" in response.json()
+    # Verify we got a Security Token back
+    assert "access_token" in response.json()
+    assert response.json()["token_type"] == "bearer"
 
 # 3. Test Profile Update (The Feature Logic)
 def test_update_profile(client):

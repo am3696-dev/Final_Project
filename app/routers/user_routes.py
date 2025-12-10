@@ -6,7 +6,7 @@ from app.database import get_db
 from app.models.user import User
 # Updated import to include UserPasswordChange
 from app.schemas.user import UserCreate, UserResponse, UserProfileUpdate, UserPasswordChange
-from app.utils import hash_password, verify_password
+from app.utils import hash_password, verify_password, create_access_token
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -42,7 +42,15 @@ def login(user_data: dict, db: Session = Depends(get_db)):
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    return {"message": "Login successful", "user_id": user.id, "username": user.username}
+    # Generate JWT Token
+    access_token = create_access_token(data={"sub": user.username})
+    
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer",
+        "user_id": user.id, 
+        "username": user.username
+    }
 
 # 3. UPDATE PROFILE
 @router.put("/{user_id}/profile", response_model=UserResponse)
