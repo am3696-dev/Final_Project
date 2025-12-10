@@ -24,6 +24,13 @@ jobs:
         playwright install --with-deps
     - name: Run Tests
       run: |
+        # 1. Start the server in the background (& symbol does this)
+        uvicorn app.main:app --host 127.0.0.1 --port 8000 &
+
+        # 2. Wait 10 seconds to ensure the server is fully awake
+        sleep 10
+
+        # 3. NOW run the tests
         pytest
 
   # JOB 2: BUILD & PUSH TO DOCKER (Only runs if tests pass)
