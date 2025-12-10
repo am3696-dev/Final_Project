@@ -52,8 +52,8 @@ jobs:
       # -ll means 'log level' (only show important things)
       run: bandit -r app -ll
 
-  # JOB 3: BUILD & PUSH TO DOCKER
-  build-and-push:
+  # JOB 3: Deploy
+  deploy:
     # Requires BOTH Test and Security to pass
     needs: [test, security]
     runs-on: ubuntu-latest
