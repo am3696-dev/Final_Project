@@ -16,39 +16,57 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
+    
+    # Install Dependencies & Browsers
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest-playwright
         playwright install --with-deps
+
+    # Start Server & Run Tests
     - name: Run Tests
       run: |
-        # 1. Start the server in the background (& symbol does this)
         uvicorn app.main:app --host 127.0.0.1 --port 8000 &
-
-        # 2. Wait 10 seconds to ensure the server is fully awake
         sleep 10
-
-        # 3. NOW run the tests
         pytest
 
-  # JOB 2: BUILD & PUSH TO DOCKER (Only runs if tests pass)
-  build-and-push:
+  # JOB 2: SECURITY SCAN
+  security:
     needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    
+    - name: Install Security Tools
+      run: |
+        pip install bandit
+
+    - name: Run Bandit Scan
+      # Scans the 'app' folder for security issues
+      # -ll means 'log level' (only show important things)
+      run: bandit -r app -ll
+
+  # JOB 3: BUILD & PUSH TO DOCKER
+  build-and-push:
+    # Requires BOTH Test and Security to pass
+    needs: [test, security]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
     - uses: actions/checkout@v3
     
-    # Login to Docker Hub using Secrets
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         
-    # Build the image and push it to am3696/final_project
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
