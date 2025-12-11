@@ -21,7 +21,7 @@ You can pull the production-ready image from Docker Hub here:
 ## How to Run Locally
 ### 1. Prerequisites
 * Python 3.10+
-* Docker (for running Postgres) or a local PostgreSQL server
+* Google Chrome (for E2E testing)
 ### 2. Setup
 1.  **Clone the repository:**
     ```bash
@@ -42,7 +42,7 @@ You can pull the production-ready image from Docker Hub here:
     ```bash
     uvicorn app.main:app --reload
     ```
-    Once running, visit http://127.0.0.1:8000/profile-ui to create an account and use the app.
+    Once running, visit 127.0.0.1:8000/login-ui to create an account and use the app.
 
 ### Run All Tests:
 ```bash
@@ -50,6 +50,6 @@ pytest
 ```
 ### Run E2E Browser Tests Only:
 ```bash
-pytest tests/e2e/test_auth.py
+pytest tests/test_e2e.py
 ```
 
